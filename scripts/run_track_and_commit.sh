@@ -17,8 +17,13 @@ if [[ -z "$(git status --porcelain -- data/159941/)" ]]; then
   exit 0
 fi
 
-git add data/159941/
+git add -- data/159941/
+if git diff --cached --quiet -- data/159941/; then
+  echo "no staged changes under data/159941/"
+  exit 0
+fi
+
 git config user.email "cursor-automation@users.noreply.github.com"
 git config user.name "Cursor Automation"
-git commit -m "chore(159941): hourly quote $(TZ=Asia/Shanghai date +%Y-%m-%d\ %H:%M)"
+git commit -m "chore(159941): hourly quote $(TZ=Asia/Shanghai date +%Y-%m-%d\ %H:%M)" -- data/159941/
 git push origin HEAD
