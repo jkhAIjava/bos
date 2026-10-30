@@ -1,0 +1,38 @@
+name: Track NASDAQ100 ETF 159941
+
+on:
+  schedule:
+    # Every hour at :48 UTC on weekdays; script no-ops outside Beijing A-share sessions.
+    - cron: "48 * * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  track:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r scripts/requirements.txt
+
+      - name: Fetch quote and update Excel
+        run: python scripts/track_159941.py
+
+      - name: Commit and push if changed
+        run: |
+          if [ -z "$(git status --porcelain -- data/159941/)" ]; then
+            echo "No changes."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/159941/
+          git commit -m "data(159941): hourly quote snapshot $(TZ=Asia/Shanghai date +%F)"
+          git push
