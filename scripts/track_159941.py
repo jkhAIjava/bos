@@ -93,11 +93,30 @@ def excel_path_for(dt: datetime) -> Path:
     return DATA_DIR / f"{dt.strftime('%Y-%m-%d')}.xlsx"
 
 
-def append_row(path: Path, row: list) -> None:
+def _hour_key(recorded_at: datetime) -> str:
+    return recorded_at.strftime("%Y-%m-%d %H")
+
+
+def _last_record_hour(ws) -> str | None:
+    if ws.max_row < 2:
+        return None
+    val = ws.cell(row=ws.max_row, column=1).value
+    if not val:
+        return None
+    if isinstance(val, datetime):
+        return val.strftime("%Y-%m-%d %H")
+    return str(val)[:13]
+
+
+def append_row(path: Path, row: list, recorded_at: datetime) -> bool:
+    """Append row; return False if this hour was already recorded."""
     path.parent.mkdir(parents=True, exist_ok=True)
+    hour_key = _hour_key(recorded_at)
     if path.exists():
         wb = load_workbook(path)
         ws = wb.active
+        if _last_record_hour(ws) == hour_key:
+            return False
     else:
         wb = Workbook()
         ws = wb.active
@@ -105,6 +124,7 @@ def append_row(path: Path, row: list) -> None:
         ws.append(HEADERS)
     ws.append(row)
     wb.save(path)
+    return True
 
 
 def build_row(recorded_at: datetime, q: dict[str, str]) -> list:
@@ -163,7 +183,9 @@ def main() -> int:
     quote = fetch_quote()
     path = excel_path_for(recorded)
     row = build_row(recorded, quote)
-    append_row(path, row)
+    if not append_row(path, row, recorded):
+        print(f"Skip: already recorded for hour {_hour_key(recorded)} in {path.name}")
+        return 0
     print(f"Appended row to {path.relative_to(REPO_ROOT)}")
     print(
         f"{quote['name']} {quote['code']} price={quote['price']} change_pct={quote['change_pct']}%"
