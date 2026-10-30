@@ -1,0 +1,21 @@
+name: Track 159941 hourly
+
+on:
+  schedule:
+    # 北京时间交易时段附近：UTC 01–07 点每小时（与 Cursor 自动化 :48 错开几分钟亦可）
+    - cron: "48 1-7 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  track:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Fetch quote and commit
+        run: bash scripts/run_track_and_commit.sh
