@@ -23,5 +23,5 @@ fi
 
 git config user.email "cursor-automation@users.noreply.github.com"
 git config user.name "Cursor Automation"
-git commit -m "data(159941): 更新 $(TZ=Asia/Shanghai date +%Y-%m-%d) 纳指100 ETF  hourly 行情"
+git commit -m "data(159941): 更新 $(TZ=Asia/Shanghai date +%Y-%m-%d) 纳指100 ETF  hourly 行情" -- data/159941/
 git push origin HEAD
