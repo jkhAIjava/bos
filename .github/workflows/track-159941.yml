@@ -1,0 +1,21 @@
+name: Track 159941 NASDAQ100 ETF
+
+on:
+  schedule:
+    # 北京时间 09:48–11:48、13:48–15:48 对应 UTC 01:48–03:48、05:48–07:48（夏令时未考虑，脚本内按北京时间过滤）
+    - cron: "48 1,2,3,5,6,7 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  track:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Fetch quote and commit Excel
+        run: bash scripts/run_track_and_commit.sh
