@@ -40,8 +40,8 @@ def is_trading_moment(now: datetime) -> bool:
     t = now.time()
     from datetime import time
 
-    morning = time(9, 30) <= t <= time(11, 30)
-    afternoon = time(13, 0) <= t <= time(15, 0)
+    morning = time(9, 30) <= t <= time(11, 59)
+    afternoon = time(13, 0) <= t <= time(15, 59)
     return morning or afternoon
 
 
