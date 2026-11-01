@@ -17,7 +17,11 @@ if [[ -z "$(git status --porcelain -- data/159941/)" ]]; then
   exit 0
 fi
 
-git add data/159941/
+git add data/159941/*.xlsx 2>/dev/null || true
+if [[ -z "$(git diff --cached --name-only)" ]]; then
+  echo "nothing to commit"
+  exit 0
+fi
 git config user.email "cursor-automation@users.noreply.github.com"
 git config user.name "Cursor Automation"
 git commit -m "chore(159941): hourly quote $(TZ=Asia/Shanghai date +%Y-%m-%d\ %H:%M)"
