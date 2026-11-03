@@ -6,6 +6,14 @@ cd "$ROOT"
 
 python3 -m pip install -q -r "$ROOT/scripts/requirements-track.txt"
 
+# 行情 Excel 统一提交到 master，避免散落在各自动化分支
+prev_branch="$(git rev-parse --abbrev-ref HEAD)"
+if [[ "$prev_branch" != "master" ]]; then
+  git fetch origin master
+  git checkout master
+  git pull --rebase origin master
+fi
+
 python3 "$ROOT/scripts/track_159941.py"
 status=$?
 if [[ "$status" -ne 0 ]]; then
@@ -31,4 +39,8 @@ fi
 git config user.email "cursor-automation@users.noreply.github.com"
 git config user.name "Cursor Automation"
 git commit -m "chore(159941): hourly quote $(TZ=Asia/Shanghai date +%Y-%m-%d\ %H:%M)" -- "${xlsx_files[@]}"
-git push origin HEAD
+git push origin master
+
+if [[ "$prev_branch" != "master" && "$prev_branch" != "HEAD" ]]; then
+  git checkout "$prev_branch"
+fi
