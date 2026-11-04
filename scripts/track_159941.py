@@ -40,8 +40,9 @@ def is_trading_moment(now: datetime) -> bool:
     t = now.time()
     from datetime import time
 
-    morning = time(9, 30) <= t <= time(11, 59)
-    afternoon = time(13, 0) <= t <= time(15, 59)
+    # A 股：9:30–11:30、13:00–15:00（与 hourly :48 触发对齐）
+    morning = time(9, 30) <= t <= time(11, 30)
+    afternoon = time(13, 0) <= t <= time(15, 0)
     return morning or afternoon
 
 
